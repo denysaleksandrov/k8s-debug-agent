@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.12-slim AS base
+FROM --platform=linux/amd64 python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -29,7 +29,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY agent.py ./
 
 # Non-root user
-RUN useradd -m appuser \
+RUN useradd -u 1000 -m appuser \
     && chown -R appuser:appuser /app
 USER appuser
 

@@ -43,11 +43,6 @@ spec:
 {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
 {{- toYaml .Values.securityContext | nindent 12 }}
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            capabilities:
-              drop:
-                - ALL
       nodeSelector:
 {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
