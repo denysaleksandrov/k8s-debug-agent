@@ -23,10 +23,24 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Load environment variables from .env file
 load_dotenv()
-if not os.environ.get("OPENAI_API_KEY"):
-    raise ValueError("OPENAI_API_KEY environment variable is required")
+AI_PROVIDER = os.environ.get("AI_PROVIDER", "openai").lower()
+AI_MODEL = os.environ.get("AI_MODEL", "gpt-4o")
+
+# Validate expected API key based on provider; pydantic_ai will use env vars
+if AI_PROVIDER == "gemini":
+    if not os.environ.get("GOOGLE_API_KEY"):
+        raise ValueError(
+            "GOOGLE_API_KEY environment variable is required for Gemini provider"
+        )
+    else:
+        print("GOOGLE_API_KEY environment variable is set")
 else:
-    print("OPENAI_API_KEY environment variable is set")
+    if not os.environ.get("OPENAI_API_KEY"):
+        raise ValueError(
+            "OPENAI_API_KEY environment variable is required for OpenAI provider"
+        )
+    else:
+        print("OPENAI_API_KEY environment variable is set")
 
 
 # ----------------------------
@@ -218,10 +232,8 @@ def get_failing_pods(
 # ----------------------------
 # Agent setup
 # ----------------------------
-agent = Agent[AgentResponse](
-    model="gpt-4o",  # Updated to a valid model name
-    output_type=AgentResponse,
-    system_prompt="""
+SYSTEM_PROMPT = (
+    """
 You are a Kubernetes debugging assistant in an interactive CLI.
 You can:
 - Answer user questions conversationally
@@ -229,7 +241,13 @@ You can:
 - Or conclude with FinalAnalysis
 
 Always return JSON that matches the schema.
-""",
+"""
+).strip()
+
+agent = Agent[AgentResponse](
+    model=AI_MODEL,
+    output_type=AgentResponse,
+    system_prompt=SYSTEM_PROMPT,
 )
 
 

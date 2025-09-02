@@ -19,7 +19,9 @@ An interactive CLI agent that helps troubleshoot Kubernetes Pods that are not Re
 
 - Python 3.10+
 - Access to a Kubernetes cluster (kubeconfig or in-cluster config)
-- Environment variable `OPENAI_API_KEY`
+- Environment variable for AI provider:
+  - For OpenAI: `OPENAI_API_KEY`
+  - For Gemini: `GOOGLE_API_KEY`
 - Dependencies (install via pip):
   - `kubernetes`
   - `pydantic`
@@ -34,10 +36,18 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Set your API key (or use a `.env` file in this directory):
+Select the AI provider and set your API key (or use a `.env` file in this directory):
 
 ```bash
-export OPENAI_API_KEY=sk-... # or use .env
+# OpenAI (default)
+export AI_PROVIDER=openai
+export AI_MODEL=gpt-4o
+export OPENAI_API_KEY=sk-...
+
+# Gemini
+# export AI_PROVIDER=gemini
+# export AI_MODEL=gemini-1.5-pro
+# export GOOGLE_API_KEY=your_key
 ```
 
 Ensure `kubectl` can reach your cluster and your kubeconfig context is correct:
@@ -116,7 +126,6 @@ Select a namespace (number, 0 for all): 2
 ```
 
 ### Controls in the chat session
-
 - Type natural language questions or requests
 - Type `exit` (or `quit`) to end the session
 - Press `Ctrl+n` to switch to the next failing Pod
