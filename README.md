@@ -101,7 +101,19 @@ When deployed in a Pod with this ServiceAccount, the agent will use in-cluster c
 ./agent.py
 ```
 
-You will see a numbered list of non-ready Pods. Choose one to start an interactive debugging session.
+On startup, the agent lists all namespaces and lets you pick one (or 0 for all). Then it shows a numbered list of non-ready Pods in the selected scope. Choose one to start an interactive debugging session.
+
+Example:
+
+```text
+📁 Available namespaces:
+0. All namespaces
+1. kube-system
+2. flow
+3. default
+
+Select a namespace (number, 0 for all): 2
+```
 
 ### Controls in the chat session
 
@@ -115,11 +127,9 @@ You will see a numbered list of non-ready Pods. Choose one to start an interacti
 - For readability, printed command output is truncated in the console view. The full output is still kept in session context used for analysis. You can increase or remove the truncation in `agent.py` if desired.
 - The model’s remediation suggestions are pretty-printed with bullets and numbering on separate lines.
 
-### Example Workflows (Boilerplate)
+### Example Workflows
 
-Replace these with your real examples.
-
-#### Example 1: Pod CrashLoopBackOff
+#### Example: Pod CrashLoopBackOff
 
 ```text
 1) Start agent and select the failing Pod
@@ -128,21 +138,38 @@ Replace these with your real examples.
 4) Inspect error and apply suggested remediation
 ```
 
-#### Example 2: ImagePullBackOff
-
-```text
-1) Start agent and select the Pod with ImagePullBackOff
-2) Ask: "What is preventing the image from pulling?"
-3) The agent may request `kubectl describe pod` and events
-4) Review auth/registry hints and fix credentials or image reference
-```
 ```Bash
 ❯ ./agent.py
 OPENAI_API_KEY environment variable is set
 
+❯ ./agent.py
+OPENAI_API_KEY environment variable is set
+
+📁 Available namespaces:
+0. All namespaces
+1. appneta
+2. default
+3. flow
+4. kube-node-lease
+5. kube-public
+6. kube-system
+7. nginx
+8. openebs
+9. pinniped-concierge
+10. secretgen-controller
+11. tkg-system
+12. velero-vsphere-plugin-backupdriver
+13. vmware-system-antrea
+14. vmware-system-auth
+15. vmware-system-cloud-provider
+16. vmware-system-csi
+17. vmware-system-tkg
+
+Select a namespace (number, 0 for all): 3
+
 🚨 Failing pods detected:
-1. flow-data-mgmt-764bb874f6-c2lw8 (ns=flow, reason=ContainersNotReady)
-2. flow-processor-bcb459647-k5fnl (ns=flow, reason=ContainersNotReady)
+1. flow-data-mgmt-764bb874f6-c2lw8 (ns=flow, reason=ContainersNotReady, Deployment=flow-data-mgmt)
+2. flow-processor-bcb459647-k5fnl (ns=flow, reason=ContainersNotReady, Deployment=flow-processor)
 
 Select a pod to debug (number): 1
 
@@ -151,13 +178,13 @@ Type 'exit' to quit. Press CTRL+n to switch to next pod.
 
 👤 You: 
 
-🔄 Switched to pod flow-processor-bcb459647-k5fnl (ns=flow, reason=ContainersNotReady)
+🔄 Switched to pod flow-processor-bcb459647-k5fnl (ns=flow, reason=ContainersNotReady, Deployment=flow-processor)
 👤 You: 
 
-🔄 Switched to pod flow-data-mgmt-764bb874f6-c2lw8 (ns=flow, reason=ContainersNotReady)
+🔄 Switched to pod flow-data-mgmt-764bb874f6-c2lw8 (ns=flow, reason=ContainersNotReady, Deployment=flow-data-mgmt)
 👤 You: 
 
-🔄 Switched to pod flow-processor-bcb459647-k5fnl (ns=flow, reason=ContainersNotReady)
+🔄 Switched to pod flow-processor-bcb459647-k5fnl (ns=flow, reason=ContainersNotReady, Deployment=flow-processor)
 👤 You: please describe the pod
 
 🤖 OpenAI requests action: type='DESCRIBE_POD' namespace='flow' name='flow-processor-bcb459647-k5fnl'
@@ -429,15 +456,6 @@ Ensure that the Vertica database server is running at 'dr-host' on port 5433 and
             👋 Exiting debugger.
 ```
 
-#### Example 3: Pending Pods due to Scheduling
-
-```text
-1) Start agent and select a Pending Pod
-2) Ask: "Why is this Pod not scheduled?"
-3) The agent may request events and node descriptions
-4) Review taints/tolerations, resource requests, affinities, or quotas
-```
-
 ### Troubleshooting
 
 - If the agent keeps prompting without answers, ensure your `OPENAI_API_KEY` is set and network access is allowed.
@@ -447,7 +465,3 @@ Ensure that the Vertica database server is running at 'dr-host' on port 5433 and
 
 - Be careful when sharing logs and cluster details; outputs may contain sensitive data.
 - Use least-privileged kubeconfig credentials when possible.
-
-### License
-
-This project’s license is TBD. Replace this section with your license of choice.

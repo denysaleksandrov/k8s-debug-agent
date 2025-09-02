@@ -141,7 +141,9 @@ def resolve_controller_for_pod(pod: V1Pod) -> Tuple[Optional[str], Optional[str]
         return (None, None)
 
 
-def get_failing_pods() -> List[Tuple[str, str, str, Optional[str], Optional[str]]]:
+def get_failing_pods(
+    namespace: Optional[str] = None,
+) -> List[Tuple[str, str, str, Optional[str], Optional[str]]]:
     """List pods that are not Ready across all namespaces.
 
     Determines non-ready pods via the Pod Ready condition, deriving a reason
@@ -152,7 +154,10 @@ def get_failing_pods() -> List[Tuple[str, str, str, Optional[str], Optional[str]
         A list of tuples: (namespace, name, reason, controller_kind, controller_name).
     """
     v1 = client.CoreV1Api()
-    pods = v1.list_pod_for_all_namespaces(watch=False)
+    if namespace:
+        pods = v1.list_namespaced_pod(namespace=namespace, watch=False)
+    else:
+        pods = v1.list_pod_for_all_namespaces(watch=False)
     not_ready = []
     for pod in pods.items:
         ready_condition = None
@@ -500,7 +505,40 @@ async def chat_loop(
 # ----------------------------
 if __name__ == "__main__":
     init_k8s()
-    failing_pods = get_failing_pods()
+    # List namespaces and prompt selection
+    v1_ns = client.CoreV1Api()
+    try:
+        ns_list = v1_ns.list_namespace()
+        namespaces = sorted([item.metadata.name for item in ns_list.items])
+    except Exception:
+        namespaces = []
+
+    selected_ns = None
+    if namespaces:
+        print("\n📁 Available namespaces:")
+        print("0. All namespaces")
+        for i, ns_name in enumerate(namespaces, 1):
+            print(f"{i}. {ns_name}")
+        while True:
+            try:
+                choice = input("\nSelect a namespace (number, 0 for all): ").strip()
+                if choice == "":
+                    # default to all
+                    break
+                idx = int(choice)
+                if idx == 0:
+                    break
+                if 1 <= idx <= len(namespaces):
+                    selected_ns = namespaces[idx - 1]
+                    break
+                else:
+                    print("❌ Invalid choice, try again.")
+            except ValueError:
+                print("❌ Please enter a number.")
+            except EOFError:
+                break
+
+    failing_pods = get_failing_pods(selected_ns)
 
     if not failing_pods:
         print("✅ No failing pods detected.")
