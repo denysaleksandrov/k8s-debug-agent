@@ -30,11 +30,22 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["python","/app/agent.py"]
           env:
+            - name: AI_PROVIDER
+              value: {{ .Values.ai.provider | quote }}
+            - name: AI_MODEL
+              value: {{ .Values.ai.model | quote }}
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ default (include "k8s-debug-agent.fullname" .) .Values.secret.name }}
                   key: OPENAI_API_KEY
+                  optional: true
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (include "k8s-debug-agent.fullname" .) .Values.secret.name }}
+                  key: GOOGLE_API_KEY
+                  optional: true
 {{- range .Values.extraEnv }}
             - name: {{ .name | quote }}
               value: {{ .value | quote }}

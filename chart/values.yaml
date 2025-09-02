@@ -3,6 +3,12 @@ image:
   tag: latest
   pullPolicy: IfNotPresent
 
+ai:
+  # provider: openai | gemini
+  provider: openai
+  # model name hints for your app (not enforced by chart)
+  model: "gpt-4o"
+
 nameOverride: ""
 fullnameOverride: ""
 
@@ -14,8 +20,9 @@ rbac:
   create: true
 
 env:
-  # Set OPENAI_API_KEY via secret or external methods
+  # One of these must be set, depending on provider
   OPENAI_API_KEY: ""
+  GOOGLE_API_KEY: ""
 
 secret:
   create: true
