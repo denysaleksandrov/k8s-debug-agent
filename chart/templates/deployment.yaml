@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "k8s-debug-agent.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "k8s-debug-agent.name" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "k8s-debug-agent.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "k8s-debug-agent.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+{{- toYaml .Values.podAnnotations | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "k8s-debug-agent.serviceAccountName" . }}
+      securityContext:
+{{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: agent
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python","/app/agent.py"]
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (include "k8s-debug-agent.fullname" .) .Values.secret.name }}
+                  key: OPENAI_API_KEY
+{{- range .Values.extraEnv }}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote }}
+{{- end }}
+          resources:
+{{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+{{- toYaml .Values.securityContext | nindent 12 }}
+      nodeSelector:
+{{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+{{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+{{- toYaml .Values.affinity | nindent 8 }}

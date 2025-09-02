@@ -1,0 +1,10 @@
+Thanks for installing {{ .Chart.Name }}.
+
+To see the agent Pod:
+  kubectl get pods -l app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/name={{ include "k8s-debug-agent.name" . }}
+
+Ensure OPENAI_API_KEY is set via the Secret:
+  kubectl get secret {{ default (include "k8s-debug-agent.fullname" .) .Values.secret.name }} -o yaml
+
+To view logs:
+  kubectl logs deploy/{{ include "k8s-debug-agent.fullname" . }}

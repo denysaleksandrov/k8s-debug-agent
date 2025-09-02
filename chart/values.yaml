@@ -1,0 +1,40 @@
+image:
+  repository: k8s-debug-agent
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+rbac:
+  create: true
+
+env:
+  # Set OPENAI_API_KEY via secret or external methods
+  OPENAI_API_KEY: ""
+
+secret:
+  create: true
+  name: ""
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+extraArgs: []
+
+extraEnv: []
