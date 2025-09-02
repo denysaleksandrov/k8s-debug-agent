@@ -144,7 +144,7 @@ def resolve_controller_for_pod(pod: V1Pod) -> Tuple[Optional[str], Optional[str]
 def get_failing_pods(
     namespace: Optional[str] = None,
 ) -> List[Tuple[str, str, str, Optional[str], Optional[str]]]:
-    """List pods that are not Ready across all namespaces.
+    """List pods that are not Ready across selected namespace or all namespaces.
 
     Determines non-ready pods via the Pod Ready condition, deriving a reason
     from the condition, container states, or pod phase. Excludes pods with

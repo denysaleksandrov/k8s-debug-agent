@@ -142,9 +142,6 @@ Select a namespace (number, 0 for all): 2
 ❯ ./agent.py
 OPENAI_API_KEY environment variable is set
 
-❯ ./agent.py
-OPENAI_API_KEY environment variable is set
-
 📁 Available namespaces:
 0. All namespaces
 1. appneta
